@@ -280,11 +280,6 @@ export const Canvas = ({ boardId }: CanvasProps) => {
       />
 
       <SelectionTools 
-          camera={camera}
-          setLastUsedColor={setLastUsedColor}
-        />
-
-      <SelectionTools 
         camera={camera}
         setLastUsedColor={setLastUsedColor}
       />
