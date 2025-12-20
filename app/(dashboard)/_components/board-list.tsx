@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { useSearchParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 
 import { EmptyBoards } from "./empty-boards";
@@ -9,17 +8,19 @@ import { EmptyFavorites } from "./empty-favorites";
 import { EmptySearch } from "./empty-search";
 import { BoardCard } from "./board-card";
 import { NewBoardButton } from "./new-board-button";
+import { useSearchParams } from "next/navigation";
 
 interface BoardListProps {
   orgId: string;
 }
 
 export const BoardList = ({ orgId }: BoardListProps) => {
-  const searchParams = useSearchParams();
+  // Read URL params directly
+  const params = useSearchParams();
+  const favorites = params.get("favorites") ?? "";
+  const search = params.get("search") ?? "";
 
-  const search = searchParams.get("search") ?? undefined;
-  const favorites = searchParams.get("favorites") ?? undefined;
-
+  // Query boards with Convex
   const data = useQuery(api.boards.get, {
     orgId,
     search,
@@ -29,38 +30,29 @@ export const BoardList = ({ orgId }: BoardListProps) => {
   if (data === undefined) {
     return (
       <div>
-        <h2 className="text-3xl">
+        <h2 className="text-2xl">
           {favorites ? "Favorite Boards" : "Team Boards"}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mt-8 pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
           <NewBoardButton orgId={orgId} disabled />
-          <BoardCard.Skeleton />
-          <BoardCard.Skeleton />
-          <BoardCard.Skeleton />
-          <BoardCard.Skeleton />
+          {[...Array(9)].map((_, index) => (
+            <BoardCard.Skeleton key={index} />
+          ))}
         </div>
       </div>
     );
   }
 
-  if (!data.length && search) {
-    return <EmptySearch />;
-  }
-
-  if (!data.length && favorites) {
-    return <EmptyFavorites />;
-  }
-
-  if (!data.length) {
-    return <EmptyBoards />;
-  }
+  if (!data.length && search) return <EmptySearch />;
+  if (!data.length && favorites) return <EmptyFavorites />;
+  if (!data.length) return <EmptyBoards />;
 
   return (
     <div>
-      <h2 className="text-3xl">
+      <h2 className="text-2xl">
         {favorites ? "Favorite Boards" : "Team Boards"}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mt-8 pb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
         <NewBoardButton orgId={orgId} />
         {data.map((board) => (
           <BoardCard
